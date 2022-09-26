@@ -97,6 +97,7 @@ GIF created with ...  [ScreenToGif](https://www.screentogif.com/) for Windows
 ## Notes
 
 Describe any challenges encountered while building the app.
+Figuring out how to implement set clicker on recycler view items was the biggest challenge
 
 ## License
 

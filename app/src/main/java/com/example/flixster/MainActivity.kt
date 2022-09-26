@@ -1,37 +1,39 @@
-package com.example.movielist
+package com.example.flixster
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import androidx.core.widget.ContentLoadingProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.codepath.asynchttpclient.AsyncHttpClient
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler
-import com.example.movielist.R.id
 import okhttp3.Headers
-import org.json.JSONObject
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import org.json.JSONException
 
 private const val now_playing_api = "https://api.themoviedb.org/3/movie/now_playing?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed"
+private const val popular_shows_api = "https://api.themoviedb.org/3/tv/popular?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed&language=en-US&page=1"
 class MainActivity : AppCompatActivity() {
     // creates mutable list of movies
 
     var MoviesList: MutableList<Movie> = ArrayList()
+    var ShowsList: MutableList<Show> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         // assigns views to variables and set up recyclerview
-        val MovieRv = findViewById<RecyclerView>(R.id.moviesRv)
+        val Rv = findViewById<RecyclerView>(R.id.Rv)
 
-        var itemsAdapter = MovieRecyclerViewAdapter(MoviesList)
 
-        MovieRv.adapter = itemsAdapter
-        MovieRv.layoutManager = LinearLayoutManager(this)
+//        var itemsAdapter = MovieRecyclerViewAdapter(MoviesList)
+        var itemsAdapter = ShowRecyclerViewAdapter(ShowsList, this)
+
+        Rv.adapter = itemsAdapter
+        Rv.layoutManager = LinearLayoutManager(this)
 
         var progressBar = findViewById<ContentLoadingProgressBar>(R.id.progress)
 
@@ -39,8 +41,9 @@ class MainActivity : AppCompatActivity() {
         val client = AsyncHttpClient()
         var gson = Gson()
 
+
         // attempts to retrieve api data
-        client.get(now_playing_api, object: JsonHttpResponseHandler(){
+        client.get(popular_shows_api, object: JsonHttpResponseHandler(){
             // if fails
             override fun onFailure(
                 statusCode: Int,
@@ -57,14 +60,24 @@ class MainActivity : AppCompatActivity() {
                 try {
                     // shows progress bar and adds each movie from api into list
                     progressBar.show()
-                    val movieJsonArray = json.jsonObject.getJSONArray("results")
-                    for (i in 0 until movieJsonArray.length()) {
-                        var json_obj = movieJsonArray.getJSONObject(i)
-                        var new_movie = Movie()
-                        new_movie.title = json_obj.getString("original_title")
-                        new_movie.description = json_obj.getString("overview")
-                        new_movie.movieImageUrl = json_obj.getString("poster_path")
-                        MoviesList.add(new_movie)
+//                    val movieJsonArray = json.jsonObject.getJSONArray("results")
+//                    for (i in 0 until movieJsonArray.length()) {
+//                        var json_obj = movieJsonArray.getJSONObject(i)
+//                        var new_show = Movie()
+//                        new_show.title = json_obj.getString("original_title")
+//                        new_show.description = json_obj.getString("overview")
+//                        new_show.movieImageUrl = json_obj.getString("poster_path")
+//                        MoviesList.add(new_show)
+                    val showJsonArray = json.jsonObject.getJSONArray("results")
+                    for (i in 0 until showJsonArray.length()) {
+                        var json_obj = showJsonArray.getJSONObject(i)
+                        var new_show = Show()
+                        new_show.title = json_obj.getString("name")
+                        new_show.description = json_obj.getString("overview")
+                        new_show.showImageUrl = json_obj.getString("poster_path")
+                        new_show.firstAirDate = json_obj.getString("first_air_date")
+                        new_show.voteAverage = json_obj.getString("vote_average")
+                        ShowsList.add(new_show)
                     }
 
                 }
